@@ -1,0 +1,18 @@
+{{- if .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kubereport-pv
+spec:
+  capacity:
+    storage: {{ .Values.persistence.capacity | quote }}
+  accessModes:
+    {{- range .Values.persistence.accessModes }}
+    - {{ . | quote }}
+    {{- end }}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
+  persistentVolumeReclaimPolicy: {{ .Values.persistence.pvpolicy | quote }}
+  {{- if .Values.persistence.provider }}
+  {{- toYaml .Values.persistence.provider | nindent 2 }}
+  {{- end }}
+{{- end }}

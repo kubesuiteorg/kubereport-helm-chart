@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubereport
+  namespace: kubereport
+  labels:
+    app: kubereport
+  annotations:
+    description: "Kubereport Deployment for Kubernetes cluster reporting tool"
+    version: "{{ .Values.image.tag }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubereport
+  template:
+    metadata:
+      labels:
+        app: kubereport
+    spec:
+      serviceAccountName: kubereport-sa
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: kubereport
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          args:
+            - --report=$(REPORT)
+            {{- if .Values.report.schedulable.enabled }}
+            - --schedule=$(SCHEDULE)
+            {{- end }}
+            {{- if .Values.smtp.enabled }}
+            - --sender=$(SENDER)
+            - --password=$(PASSWORD)
+            - --recipient=$(RECIPIENT)
+            - --subject=$(SUBJECT)
+            - --body=$(BODY)
+            - --smtp-server=$(SMTP_SERVER)
+            - --smtp-port=$(SMTP_PORT)
+            - --use-tls=$(USE_TLS)
+            {{- end }}
+          env:
+            - name: REPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: kubereport-config
+                  key: report
+            - name: SCHEDULE
+              valueFrom:
+                configMapKeyRef:
+                  name: kubereport-config
+                  key: schedule
+            {{- if .Values.smtp.enabled }}
+            - name: SENDER
+              valueFrom:
+                configMapKeyRef:
+                  name: kubereport-config
+                  key: sender
+            - name: RECIPIENT
+              valueFrom:
+                configMapKeyRef:
+                  name: kubereport-config
+                  key: recipient
+            - name: SUBJECT
+              valueFrom:
+                configMapKeyRef:
+                  name: kubereport-config
+                  key: subject
+            - name: BODY
+              valueFrom:
+                configMapKeyRef:
+                  name: kubereport-config
+                  key: body
+            - name: SMTP_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: kubereport-config
+                  key: smtp-server
+            - name: SMTP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: kubereport-config
+                  key: smtp-port
+            - name: USE_TLS
+              valueFrom:
+                configMapKeyRef:
+                  name: kubereport-config
+                  key: use-tls
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kubereport-secret
+                  key: password
+            {{- end }}
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: kubereport-storage-volume
+              mountPath: /kubereport
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }} 
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: kubereport-storage-volume
+          persistentVolumeClaim:
+            claimName: kubereport-pvc
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

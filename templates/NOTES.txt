@@ -1,0 +1,9 @@
+# Kubernetes Report Deployment
+
+Congratulations! Your Kubernetes Report application has been successfully deployed.
+
+## Accessing the Application
+
+To verify that the Kubernetes Report application has started, run the following command:
+
+kubectl --namespace=kubereport get pods -l "app=kubereport"
