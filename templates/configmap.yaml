@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubereport-config
+  namespace: kubereport
+data: 
+  report: {{ .Values.report.type | quote }}
+  {{- if .Values.report.schedulable.enabled }}
+  schedule: {{ .Values.report.schedulable.schedule | quote }}
+  {{- end }}
+  {{- if .Values.smtp.enabled }}
+  sender: {{ .Values.smtp.sender | quote }}
+  recipient: {{ .Values.smtp.recipient | quote }}
+  subject: {{ .Values.smtp.subject | quote }}
+  body: {{ .Values.smtp.body | quote }}
+  smtp-server: {{ .Values.smtp.server | quote }}
+  smtp-port: {{ .Values.smtp.port | quote }}
+  use-tls: {{ .Values.smtp.useTLS | quote }}
+  {{- end }}

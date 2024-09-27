@@ -1,0 +1,130 @@
+# Default values for kubereport.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: kubesuite/kubereport #kubesuite/kubereport
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+# Image Pull Secrets
+imagePullSecrets: []
+
+# Reporting Configuration
+report:
+  type: "detailed"
+  schedulable:
+    enabled: true
+    schedule: "* * * * *"
+
+# SMTP Configuration
+smtp:
+  enabled: false
+  server: "smtp.gmail.com"
+  port: "587"
+  useTLS: "true"
+  recipient: "example@example.com"
+  sender: "sender@example.com"
+  password: "XXXXXXX"
+  subject: "Kubernetes Cluster Report"
+  body: |
+    Hi,
+
+    The latest Kubernetes cluster report has been generated and is attached for your reference.
+
+    Thanks
+    KubeReport,
+
+# Persistent Volume Configuration
+persistence:
+  enabled: false
+  storageClass: ""
+  capacity: "100Mi"
+  request: "100Mi"
+  accessModes: 
+    - ReadWriteOnce
+  pvpolicy: "Retain"
+  secretName: azure-secret
+  secretValues:
+    azurestorageaccountname: XXXXXX
+    azurestorageaccountkey: XXXXXX
+  # FOR AWS
+  # awsAccessKeyId:
+  # awsSecretAccessKey: 
+  # FOR GCP
+  # gcpServiceAccountKey: 
+  provider:
+    azureFile:
+      secretName: azure-secret
+      shareName: XXXXXX
+      readOnly: false
+    mountOptions:
+      - dir_mode=0777
+      - file_mode=0777
+      - uid=1000
+      - gid=1000
+      - mfsymlinks
+      - nobrl
+    #awsEFS:
+    #  secretName: aws-secret
+    #  fileSystemId: fs-12345678 
+    #  region: us-west-2          
+    #  accessPointId: fsap-12345678 
+    #  readOnly: false
+    #mountOptions:
+    #  - tls                 
+    #gcpFilestore:
+    #  secretName: gcp-secret
+    #  instanceName: filestore-instance 
+    #  zone: us-central1-a 
+    #  readOnly: false
+    #mountOptions:
+    #  - nolock     
+
+
+# Resource Requests and Limits
+resources: {}
+  # Uncomment and set the limits and requests as needed
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Affinity, Node Selector, Tolerations, and Topology Spread Constraints
+affinity: {}
+# Set node affinity rules
+# Example:
+# nodeAffinity:
+#   requiredDuringSchedulingIgnoredDuringExecution:
+#     nodeSelectorTerms:
+#       - matchExpressions:
+#           - key: "kubernetes.io/e2e-az-name"
+#             operator: In
+#             values:
+#               - e2e-az1
+#               - e2e-az2
+
+nodeSelector: {}
+# Specify the node labels for pod assignment
+
+tolerations: []
+# Set tolerations for nodes with taints
+# Example:
+# - key: "key"
+#   operator: "Equal"
+#   value: "value"
+#   effect: "NoSchedule"
+
+topologySpreadConstraints: []
+# Define topology spread constraints to spread pods across different topologies
+# Example:
+# - maxSkew: 1
+#   topologyKey: "kubernetes.io/hostname"
+#   whenUnsatisfiable: DoNotSchedule
+#   labelSelector:
+#     matchLabels:
+#       app: kubereport
