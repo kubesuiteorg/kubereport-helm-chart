@@ -19,6 +19,12 @@ helm repo update
 helm install kubereport kubereport/kubereport
 ```
 
+Verify the Installation
+
+```bash
+kubectl get pods -n kubereport
+```
+
 ## Configuration Parameters
 
 ### Report Configuration

@@ -32,7 +32,7 @@ Before starting, ensure you have the following installed:
     You can customize the `values.yaml` file for your deployment. Below is a sample configuration:
 
     ```yaml
-    # Reporting Configuration
+    # Reporting Configuration [Default values]
     report:
       type: "detailed"
       schedulable:
